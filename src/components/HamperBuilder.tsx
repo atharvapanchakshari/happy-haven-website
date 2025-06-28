@@ -173,9 +173,9 @@ Please confirm availability and provide delivery details.`;
   };
 
   const renderStepIndicator = () => (
-    <div className="mb-12">
+    <div className="mb-8 sm:mb-12">
       <div className="flex justify-center">
-        <div className="flex items-center space-x-4 overflow-x-auto pb-4">
+        <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto pb-4 px-4">
           {steps.map((step, index) => (
             <div key={step.number} className="flex items-center">
               <div 
@@ -184,7 +184,7 @@ Please confirm availability and provide delivery details.`;
                 } ${canGoToStep(step.number) ? 'hover:text-primary-700' : 'cursor-not-allowed'}`}
                 onClick={() => canGoToStep(step.number) && setCurrentStep(step.number)}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold mb-2 transition-all duration-200 ${
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold mb-2 transition-all duration-200 ${
                   currentStep > step.number 
                     ? 'bg-primary-600 text-white' 
                     : currentStep === step.number
@@ -193,15 +193,15 @@ Please confirm availability and provide delivery details.`;
                     ? 'bg-neutral-200 text-neutral-600 hover:bg-primary-100 hover:text-primary-600'
                     : 'bg-neutral-200 text-neutral-400'
                 }`}>
-                  {currentStep > step.number ? <Check className="h-5 w-5" /> : step.number}
+                  {currentStep > step.number ? <Check className="h-3 w-3 sm:h-5 sm:w-5" /> : step.number}
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-medium">{step.title}</div>
-                  <div className="text-xs">{step.description}</div>
+                  <div className="text-xs sm:text-sm font-medium">{step.title}</div>
+                  <div className="text-xs hidden sm:block">{step.description}</div>
                 </div>
               </div>
               {index < steps.length - 1 && (
-                <div className={`w-12 h-0.5 mx-4 ${
+                <div className={`w-8 sm:w-12 h-0.5 mx-2 sm:mx-4 ${
                   currentStep > step.number ? 'bg-primary-600' : 'bg-neutral-200'
                 }`} />
               )}
@@ -214,10 +214,10 @@ Please confirm availability and provide delivery details.`;
 
   const renderStep1 = () => (
     <div>
-      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Choose Your Occasion
       </h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {occasions.map((occasion) => (
           <div
             key={occasion.id}
@@ -226,7 +226,7 @@ Please confirm availability and provide delivery details.`;
               selection.occasion?.id === occasion.id ? 'ring-2 ring-primary-500' : ''
             }`}
           >
-            <div className={`relative h-48 bg-gradient-to-br ${getOccasionGradient(occasion.id)}`}>
+            <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${getOccasionGradient(occasion.id)}`}>
               {/* Decorative patterns */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -236,25 +236,25 @@ Please confirm availability and provide delivery details.`;
               </div>
               
               {/* Icon */}
-              <div className="absolute top-4 left-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                  <Gift className="h-6 w-6 text-white" />
+              <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 sm:p-3">
+                  <Gift className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
 
               {/* Selected indicator */}
               {selection.occasion?.id === occasion.id && (
-                <div className="absolute top-4 right-4">
-                  <div className="bg-primary-600 text-white rounded-full p-2">
-                    <Check className="h-4 w-4" />
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                  <div className="bg-primary-600 text-white rounded-full p-1 sm:p-2">
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                   </div>
                 </div>
               )}
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="text-xl font-serif font-bold">{occasion.name}</h3>
-                <p className="text-sm opacity-90">{occasion.description}</p>
+              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
+                <h3 className="text-lg sm:text-xl font-serif font-bold">{occasion.name}</h3>
+                <p className="text-xs sm:text-sm opacity-90">{occasion.description}</p>
               </div>
             </div>
           </div>
@@ -265,10 +265,10 @@ Please confirm availability and provide delivery details.`;
 
   const renderStep2 = () => (
     <div>
-      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Select Your Vibe
       </h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {vibes.map((vibe) => (
           <div
             key={vibe.id}
@@ -277,7 +277,7 @@ Please confirm availability and provide delivery details.`;
               selection.vibe?.id === vibe.id ? 'ring-2 ring-primary-500' : ''
             }`}
           >
-            <div className={`relative h-48 bg-gradient-to-br ${getVibeGradient(vibe.id)}`}>
+            <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${getVibeGradient(vibe.id)}`}>
               {/* Decorative patterns */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -287,24 +287,24 @@ Please confirm availability and provide delivery details.`;
               </div>
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute top-4 right-4">
-                <span className={`${vibe.color} text-white px-3 py-1 rounded-full text-sm font-medium`}>
+              <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                <span className={`${vibe.color} text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium`}>
                   {vibe.name}
                 </span>
               </div>
 
               {/* Selected indicator */}
               {selection.vibe?.id === vibe.id && (
-                <div className="absolute top-4 left-4">
-                  <div className="bg-primary-600 text-white rounded-full p-2">
-                    <Check className="h-4 w-4" />
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
+                  <div className="bg-primary-600 text-white rounded-full p-1 sm:p-2">
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                   </div>
                 </div>
               )}
 
-              <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="text-xl font-serif font-bold">{vibe.name}</h3>
-                <p className="text-sm opacity-90">{vibe.description}</p>
+              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
+                <h3 className="text-lg sm:text-xl font-serif font-bold">{vibe.name}</h3>
+                <p className="text-xs sm:text-sm opacity-90">{vibe.description}</p>
               </div>
             </div>
           </div>
@@ -315,10 +315,10 @@ Please confirm availability and provide delivery details.`;
 
   const renderStep3 = () => (
     <div>
-      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Choose Packaging
       </h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {packaging.map((pkg) => (
           <div
             key={pkg.id}
@@ -327,7 +327,7 @@ Please confirm availability and provide delivery details.`;
               selection.packaging?.id === pkg.id ? 'ring-2 ring-primary-500' : ''
             }`}
           >
-            <div className={`relative h-48 bg-gradient-to-br ${getPackagingGradient(pkg.id)}`}>
+            <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${getPackagingGradient(pkg.id)}`}>
               {/* Decorative patterns */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -337,30 +337,30 @@ Please confirm availability and provide delivery details.`;
               </div>
               
               {/* Icon */}
-              <div className="absolute top-4 left-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                  <Package className="h-6 w-6 text-white" />
+              <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 sm:p-3">
+                  <Package className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
 
               {/* Selected indicator */}
               {selection.packaging?.id === pkg.id && (
-                <div className="absolute top-4 right-4">
-                  <div className="bg-primary-600 text-white rounded-full p-2">
-                    <Check className="h-4 w-4" />
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                  <div className="bg-primary-600 text-white rounded-full p-1 sm:p-2">
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                   </div>
                 </div>
               )}
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute top-4 right-4">
-                <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+              <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                <span className="bg-primary-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                   ₹{pkg.price}
                 </span>
               </div>
-              <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="text-xl font-serif font-bold">{pkg.name}</h3>
-                <p className="text-sm opacity-90">{pkg.description}</p>
+              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
+                <h3 className="text-lg sm:text-xl font-serif font-bold">{pkg.name}</h3>
+                <p className="text-xs sm:text-sm opacity-90">{pkg.description}</p>
               </div>
             </div>
           </div>
@@ -374,17 +374,17 @@ Please confirm availability and provide delivery details.`;
     
     return (
       <div>
-        <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
           Choose Contents
         </h2>
-        <p className="text-center text-neutral-600 mb-8">
+        <p className="text-center text-neutral-600 mb-6 sm:mb-8 text-sm sm:text-base">
           Select multiple items to create your perfect hamper
         </p>
         
         {categories.map((category) => (
-          <div key={category} className="mb-12">
-            <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">{category}</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div key={category} className="mb-8 sm:mb-12">
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">{category}</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
               {contents.filter(c => c.category === category).map((content) => {
                 const isSelected = selection.contents.find(c => c.id === content.id);
                 return (
@@ -395,7 +395,7 @@ Please confirm availability and provide delivery details.`;
                       isSelected ? 'border-primary-500' : 'border-transparent'
                     }`}
                   >
-                    <div className={`relative h-32 bg-gradient-to-br ${getContentGradient(content.category)}`}>
+                    <div className={`relative h-24 sm:h-32 bg-gradient-to-br ${getContentGradient(content.category)}`}>
                       {/* Decorative patterns */}
                       <div className="absolute inset-0 opacity-20">
                         <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -405,26 +405,26 @@ Please confirm availability and provide delivery details.`;
                       </div>
                       
                       {/* Icon */}
-                      <div className="absolute top-2 left-2">
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
-                          <Sparkles className="h-4 w-4 text-white" />
+                      <div className="absolute top-1 sm:top-2 left-1 sm:left-2">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-1 sm:p-2">
+                          <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                         </div>
                       </div>
                       
                       {isSelected && (
-                        <div className="absolute top-2 right-2 bg-primary-600 text-white rounded-full p-1">
-                          <Check className="h-4 w-4" />
+                        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-primary-600 text-white rounded-full p-1">
+                          <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                         </div>
                       )}
-                      <div className="absolute bottom-2 left-2">
-                        <span className="bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
+                      <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2">
+                        <span className="bg-black/70 text-white px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium">
                           ₹{content.price}
                         </span>
                       </div>
                     </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-neutral-800 mb-1">{content.name}</h4>
-                      <p className="text-sm text-neutral-600">{content.description}</p>
+                    <div className="p-3 sm:p-4">
+                      <h4 className="font-semibold text-neutral-800 mb-1 text-sm sm:text-base">{content.name}</h4>
+                      <p className="text-xs sm:text-sm text-neutral-600 line-clamp-2">{content.description}</p>
                     </div>
                   </div>
                 );
@@ -434,10 +434,10 @@ Please confirm availability and provide delivery details.`;
         ))}
         
         {selection.contents.length > 0 && (
-          <div className="text-center mt-8">
+          <div className="text-center mt-6 sm:mt-8">
             <button
               onClick={() => setCurrentStep(5)}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200"
+              className="bg-primary-600 hover:bg-primary-700 text-white px-6 sm:px-8 py-3 rounded-full font-semibold transition-colors duration-200 text-sm sm:text-base"
             >
               Continue to Review ({selection.contents.length} items selected)
             </button>
@@ -449,42 +449,42 @@ Please confirm availability and provide delivery details.`;
 
   const renderStep5 = () => (
     <div>
-      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Review Your Hamper
       </h2>
       
-      <div className="grid lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
         {/* Order Summary */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">Order Summary</h3>
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">Order Summary</h3>
           
-          <div className="space-y-4 mb-6">
-            <div className="flex justify-between items-center py-2 border-b">
+          <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+            <div className="flex justify-between items-center py-2 border-b text-sm sm:text-base">
               <span className="font-medium">Occasion:</span>
               <span className="text-primary-600">{selection.occasion?.name}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b">
+            <div className="flex justify-between items-center py-2 border-b text-sm sm:text-base">
               <span className="font-medium">Vibe:</span>
               <span className="text-primary-600">{selection.vibe?.name}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b">
+            <div className="flex justify-between items-center py-2 border-b text-sm sm:text-base">
               <span className="font-medium">Packaging:</span>
               <span className="text-primary-600">{selection.packaging?.name} - ₹{selection.packaging?.price}</span>
             </div>
           </div>
           
-          <h4 className="font-semibold text-neutral-800 mb-4">Contents ({selection.contents.length} items):</h4>
-          <div className="space-y-2 mb-6">
+          <h4 className="font-semibold text-neutral-800 mb-3 sm:mb-4 text-sm sm:text-base">Contents ({selection.contents.length} items):</h4>
+          <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6 max-h-32 sm:max-h-40 overflow-y-auto">
             {selection.contents.map((content) => (
               <div key={content.id} className="flex justify-between items-center py-1">
-                <span className="text-sm">{content.name}</span>
-                <span className="text-sm font-medium">₹{content.price}</span>
+                <span className="text-xs sm:text-sm">{content.name}</span>
+                <span className="text-xs sm:text-sm font-medium">₹{content.price}</span>
               </div>
             ))}
           </div>
           
           <div className="border-t pt-4">
-            <div className="flex justify-between items-center text-xl font-bold">
+            <div className="flex justify-between items-center text-lg sm:text-xl font-bold">
               <span>Total:</span>
               <span className="text-primary-600">₹{calculateTotal()}</span>
             </div>
@@ -492,11 +492,11 @@ Please confirm availability and provide delivery details.`;
         </div>
         
         {/* Mockup Preview */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">Your Hamper Preview</h3>
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">Your Hamper Preview</h3>
           
-          <div className="relative mb-6">
-            <div className={`w-full h-64 bg-gradient-to-br ${getPackagingGradient(selection.packaging?.id || '')} rounded-xl relative overflow-hidden`}>
+          <div className="relative mb-4 sm:mb-6">
+            <div className={`w-full h-48 sm:h-64 bg-gradient-to-br ${getPackagingGradient(selection.packaging?.id || '')} rounded-xl relative overflow-hidden`}>
               {/* Decorative patterns */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -506,17 +506,17 @@ Please confirm availability and provide delivery details.`;
               </div>
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-xl" />
-              <div className="absolute bottom-4 left-4 text-white">
-                <h4 className="text-lg font-bold">{selection.occasion?.name} Hamper</h4>
-                <p className="text-sm opacity-90">{selection.vibe?.name} Style</p>
+              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
+                <h4 className="text-base sm:text-lg font-bold">{selection.occasion?.name} Hamper</h4>
+                <p className="text-xs sm:text-sm opacity-90">{selection.vibe?.name} Style</p>
               </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
             {selection.contents.slice(0, 4).map((content) => (
               <div key={content.id} className="relative">
-                <div className={`w-full h-20 bg-gradient-to-br ${getContentGradient(content.category)} rounded-lg relative overflow-hidden`}>
+                <div className={`w-full h-16 sm:h-20 bg-gradient-to-br ${getContentGradient(content.category)} rounded-lg relative overflow-hidden`}>
                   <div className="absolute inset-0 bg-black/30 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-medium text-center px-1">
                       {content.name}
@@ -528,25 +528,25 @@ Please confirm availability and provide delivery details.`;
           </div>
           
           {selection.contents.length > 4 && (
-            <p className="text-sm text-neutral-600 text-center mb-6">
+            <p className="text-xs sm:text-sm text-neutral-600 text-center mb-4 sm:mb-6">
               +{selection.contents.length - 4} more items included
             </p>
           )}
           
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <button
               onClick={() => setShowMockup(true)}
-              className="w-full border border-primary-600 text-primary-600 hover:bg-primary-50 py-3 px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+              className="w-full border border-primary-600 text-primary-600 hover:bg-primary-50 py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
-              <Eye className="h-5 w-5" />
+              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>View Full Mockup</span>
             </button>
             
             <button
               onClick={handleOrderSubmit}
-              className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Order via WhatsApp</span>
             </button>
           </div>
@@ -556,28 +556,28 @@ Please confirm availability and provide delivery details.`;
   );
 
   return (
-    <section className="pt-24 pb-20 bg-neutral-50 min-h-screen hamper-builder" data-page="builder">
+    <section className="pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 md:pb-20 bg-neutral-50 min-h-screen hamper-builder" data-page="builder">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with Home Button */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
           <button
             onClick={onNavigateHome}
-            className="flex items-center space-x-2 text-neutral-600 hover:text-primary-600 transition-colors duration-200"
+            className="flex items-center space-x-2 text-neutral-600 hover:text-primary-600 transition-colors duration-200 text-sm sm:text-base"
           >
-            <Home className="h-5 w-5" />
+            <Home className="h-4 w-4 sm:h-5 sm:w-5" />
             <span>Back to Home</span>
           </button>
           
-          <h1 className="text-3xl font-serif font-bold text-neutral-800">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-neutral-800 text-center flex-1">
             Build Your Perfect Hamper
           </h1>
           
-          <div className="w-24"></div> {/* Spacer for centering */}
+          <div className="w-20 sm:w-24"></div> {/* Spacer for centering */}
         </div>
 
         {renderStepIndicator()}
         
-        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 md:p-12">
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
@@ -585,23 +585,23 @@ Please confirm availability and provide delivery details.`;
           {currentStep === 5 && renderStep5()}
           
           {/* Navigation */}
-          <div className="flex justify-between items-center mt-12">
+          <div className="flex justify-between items-center mt-8 sm:mt-12">
             <button
               onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
               disabled={currentStep === 1}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base ${
                 currentStep === 1
                   ? 'text-neutral-400 cursor-not-allowed'
                   : 'text-neutral-600 hover:text-primary-600 hover:bg-primary-50'
               }`}
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Previous</span>
             </button>
             
             <div className="text-center">
               {currentStep === 4 && selection.contents.length === 0 && (
-                <p className="text-neutral-500 italic">Select at least one item to continue</p>
+                <p className="text-neutral-500 italic text-xs sm:text-sm">Select at least one item to continue</p>
               )}
             </div>
 
@@ -620,7 +620,7 @@ Please confirm availability and provide delivery details.`;
                 (currentStep === 4 && selection.contents.length === 0) ||
                 currentStep === 5
               }
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base ${
                 ((currentStep === 1 && !selection.occasion) ||
                  (currentStep === 2 && !selection.vibe) ||
                  (currentStep === 3 && !selection.packaging) ||
@@ -631,34 +631,34 @@ Please confirm availability and provide delivery details.`;
               }`}
             >
               <span>Next</span>
-              <ArrowRight className="h-5 w-5" />
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
         </div>
         
         {/* Mockup Modal */}
         {showMockup && (
-          <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex min-h-screen items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 overflow-y-auto p-4">
+            <div className="flex min-h-screen items-center justify-center">
               <div 
                 className="fixed inset-0 bg-black/50 transition-opacity"
                 onClick={() => setShowMockup(false)}
               />
-              <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8">
+              <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 sm:p-8">
                 <button
                   onClick={() => setShowMockup(false)}
                   className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 text-2xl"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
                 
-                <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">
                   Your Custom Hamper Mockup
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                   <div>
-                    <div className={`w-full h-80 bg-gradient-to-br ${getPackagingGradient(selection.packaging?.id || '')} rounded-xl relative overflow-hidden`}>
+                    <div className={`w-full h-64 sm:h-80 bg-gradient-to-br ${getPackagingGradient(selection.packaging?.id || '')} rounded-xl relative overflow-hidden`}>
                       {/* Decorative patterns */}
                       <div className="absolute inset-0 opacity-20">
                         <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -670,21 +670,21 @@ Please confirm availability and provide delivery details.`;
                   </div>
                   
                   <div>
-                    <h4 className="text-xl font-bold text-neutral-800 mb-4">
+                    <h4 className="text-lg sm:text-xl font-bold text-neutral-800 mb-4">
                       {selection.occasion?.name} Hamper - {selection.vibe?.name} Style
                     </h4>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3 text-sm sm:text-base">
                       <p><strong>Packaging:</strong> {selection.packaging?.name}</p>
                       <p><strong>Total Items:</strong> {selection.contents.length}</p>
                       <p><strong>Total Value:</strong> ₹{calculateTotal()}</p>
                     </div>
                     
-                    <div className="mt-6">
-                      <h5 className="font-semibold mb-3">Included Items:</h5>
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="mt-4 sm:mt-6">
+                      <h5 className="font-semibold mb-3 text-sm sm:text-base">Included Items:</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                         {selection.contents.map((content) => (
-                          <div key={content.id} className="text-sm bg-neutral-50 p-2 rounded">
+                          <div key={content.id} className="text-xs sm:text-sm bg-neutral-50 p-2 rounded">
                             {content.name}
                           </div>
                         ))}
@@ -693,7 +693,7 @@ Please confirm availability and provide delivery details.`;
                     
                     <button
                       onClick={handleOrderSubmit}
-                      className="w-full mt-6 bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-xl font-semibold transition-colors duration-200"
+                      className="w-full mt-4 sm:mt-6 bg-primary-600 hover:bg-primary-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 text-sm sm:text-base"
                     >
                       Order This Hamper
                     </button>
