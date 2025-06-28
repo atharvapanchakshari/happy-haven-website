@@ -12,7 +12,7 @@ A beautiful, modern website for Happy Haven's thoughtfully curated gift hampers.
 
 ## 🚀 Live Demo
 
-Visit the live website: [Happy Haven Gift Hampers](https://yourusername.github.io/happy-haven-website/)
+Visit the live website: [Happy Haven Gift Hampers](https://atharvapanchakshari.github.io/happy-haven-website/)
 
 ## 🛠️ Technologies Used
 
@@ -26,7 +26,7 @@ Visit the live website: [Happy Haven Gift Hampers](https://yourusername.github.i
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/happy-haven-website.git
+git clone https://github.com/atharvapanchakshari/happy-haven-website.git
 cd happy-haven-website
 ```
 
