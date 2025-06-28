@@ -1,0 +1,711 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, ArrowRight, Check, ShoppingCart, Eye, X, Gift, Package, Sparkles, Home } from 'lucide-react';
+import { occasions, vibes, packaging, contents, Occasion, Vibe, Packaging, Content } from '../data/hamperBuilder';
+
+interface HamperSelection {
+  occasion: Occasion | null;
+  vibe: Vibe | null;
+  packaging: Packaging | null;
+  contents: Content[];
+}
+
+interface HamperBuilderProps {
+  preSelectedOccasion?: string | null;
+  onNavigateHome: () => void;
+}
+
+const HamperBuilder: React.FC<HamperBuilderProps> = ({ preSelectedOccasion, onNavigateHome }) => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selection, setSelection] = useState<HamperSelection>({
+    occasion: null,
+    vibe: null,
+    packaging: null,
+    contents: []
+  });
+  const [showMockup, setShowMockup] = useState(false);
+
+  // Handle pre-selected occasion
+  useEffect(() => {
+    if (preSelectedOccasion) {
+      // Find matching occasion or create a custom one
+      let matchedOccasion = occasions.find(occ => 
+        occ.id === preSelectedOccasion || 
+        occ.name.toLowerCase() === preSelectedOccasion.toLowerCase() ||
+        occ.id === preSelectedOccasion.replace(/\s+/g, '-').toLowerCase()
+      );
+
+      if (!matchedOccasion && preSelectedOccasion.toLowerCase() !== 'custom') {
+        // Create a custom occasion for unmatched ones
+        matchedOccasion = {
+          id: preSelectedOccasion.replace(/\s+/g, '-').toLowerCase(),
+          name: preSelectedOccasion.charAt(0).toUpperCase() + preSelectedOccasion.slice(1),
+          description: `Custom hamper for ${preSelectedOccasion}`,
+          image: 'gradient-custom'
+        };
+      }
+
+      if (matchedOccasion) {
+        setSelection(prev => ({ ...prev, occasion: matchedOccasion }));
+        setCurrentStep(2); // Skip to vibe selection
+      }
+    }
+  }, [preSelectedOccasion]);
+
+  const steps = [
+    { number: 1, title: 'Choose Occasion', description: 'What\'s the celebration?' },
+    { number: 2, title: 'Select Vibe', description: 'What\'s your style?' },
+    { number: 3, title: 'Pick Packaging', description: 'How should we wrap it?' },
+    { number: 4, title: 'Choose Contents', description: 'What goes inside?' },
+    { number: 5, title: 'Review & Order', description: 'Finalize your hamper' }
+  ];
+
+  const handleOccasionSelect = (occasion: Occasion) => {
+    setSelection(prev => ({ ...prev, occasion }));
+    setCurrentStep(2);
+  };
+
+  const handleVibeSelect = (vibe: Vibe) => {
+    setSelection(prev => ({ ...prev, vibe }));
+    setCurrentStep(3);
+  };
+
+  const handlePackagingSelect = (pkg: Packaging) => {
+    setSelection(prev => ({ ...prev, packaging: pkg }));
+    setCurrentStep(4);
+  };
+
+  const handleContentToggle = (content: Content) => {
+    setSelection(prev => ({
+      ...prev,
+      contents: prev.contents.find(c => c.id === content.id)
+        ? prev.contents.filter(c => c.id !== content.id)
+        : [...prev.contents, content]
+    }));
+  };
+
+  const calculateTotal = () => {
+    const packagingPrice = selection.packaging?.price || 0;
+    const contentsPrice = selection.contents.reduce((sum, content) => sum + content.price, 0);
+    return packagingPrice + contentsPrice;
+  };
+
+  const handleOrderSubmit = () => {
+    const orderDetails = `
+🎁 *CUSTOM HAMPER ORDER*
+
+📅 *Occasion:* ${selection.occasion?.name}
+🎨 *Vibe:* ${selection.vibe?.name}
+📦 *Packaging:* ${selection.packaging?.name} (₹${selection.packaging?.price})
+
+📋 *Contents Selected:*
+${selection.contents.map((content, index) => `${index + 1}. ${content.name} - ₹${content.price}`).join('\n')}
+
+💰 *Total Amount:* ₹${calculateTotal()}
+
+📝 *Order Summary:*
+• Total Items: ${selection.contents.length}
+• Packaging: ${selection.packaging?.description}
+• Style: ${selection.vibe?.description}
+• Occasion: ${selection.occasion?.description}
+
+Please confirm availability and provide delivery details.`;
+
+    const whatsappUrl = `https://wa.me/918007191513?text=${encodeURIComponent(orderDetails)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const getOccasionGradient = (id: string) => {
+    switch (id) {
+      case 'wedding': return 'from-pink-400 to-rose-600';
+      case 'baby-shower': return 'from-blue-400 to-cyan-600';
+      case 'birthday': return 'from-yellow-400 to-orange-600';
+      case 'anniversary': return 'from-red-400 to-pink-600';
+      case 'corporate': return 'from-blue-400 to-indigo-600';
+      case 'housewarming': return 'from-green-400 to-emerald-600';
+      default: return 'from-primary-400 to-primary-600';
+    }
+  };
+
+  const getVibeGradient = (id: string) => {
+    switch (id) {
+      case 'earthy': return 'from-green-400 to-emerald-600';
+      case 'elegant': return 'from-purple-400 to-violet-600';
+      case 'minimalist': return 'from-gray-400 to-slate-600';
+      case 'festive': return 'from-red-400 to-rose-600';
+      case 'rustic': return 'from-amber-400 to-orange-600';
+      case 'modern': return 'from-blue-400 to-cyan-600';
+      default: return 'from-primary-400 to-primary-600';
+    }
+  };
+
+  const getPackagingGradient = (id: string) => {
+    switch (id) {
+      case 'cloth-wrap': return 'from-purple-400 to-violet-600';
+      case 'jute-basket': return 'from-amber-400 to-orange-600';
+      case 'wooden-box': return 'from-amber-600 to-brown-600';
+      case 'gift-box': return 'from-pink-400 to-rose-600';
+      case 'wicker-basket': return 'from-yellow-400 to-amber-600';
+      case 'metal-tin': return 'from-gray-400 to-slate-600';
+      default: return 'from-primary-400 to-primary-600';
+    }
+  };
+
+  const getContentGradient = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'candles': return 'from-orange-400 to-red-600';
+      case 'snacks': return 'from-yellow-400 to-orange-600';
+      case 'skincare': return 'from-green-400 to-emerald-600';
+      case 'accessories': return 'from-purple-400 to-violet-600';
+      case 'beverages': return 'from-blue-400 to-cyan-600';
+      default: return 'from-primary-400 to-primary-600';
+    }
+  };
+
+  const canGoToStep = (stepNumber: number) => {
+    switch (stepNumber) {
+      case 1: return true;
+      case 2: return selection.occasion !== null;
+      case 3: return selection.occasion !== null && selection.vibe !== null;
+      case 4: return selection.occasion !== null && selection.vibe !== null && selection.packaging !== null;
+      case 5: return selection.occasion !== null && selection.vibe !== null && selection.packaging !== null && selection.contents.length > 0;
+      default: return false;
+    }
+  };
+
+  const renderStepIndicator = () => (
+    <div className="mb-12">
+      <div className="flex justify-center">
+        <div className="flex items-center space-x-4 overflow-x-auto pb-4">
+          {steps.map((step, index) => (
+            <div key={step.number} className="flex items-center">
+              <div 
+                className={`flex flex-col items-center min-w-0 cursor-pointer ${
+                  currentStep >= step.number ? 'text-primary-600' : 'text-neutral-400'
+                } ${canGoToStep(step.number) ? 'hover:text-primary-700' : 'cursor-not-allowed'}`}
+                onClick={() => canGoToStep(step.number) && setCurrentStep(step.number)}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold mb-2 transition-all duration-200 ${
+                  currentStep > step.number 
+                    ? 'bg-primary-600 text-white' 
+                    : currentStep === step.number
+                    ? 'bg-primary-100 text-primary-600 border-2 border-primary-600'
+                    : canGoToStep(step.number)
+                    ? 'bg-neutral-200 text-neutral-600 hover:bg-primary-100 hover:text-primary-600'
+                    : 'bg-neutral-200 text-neutral-400'
+                }`}>
+                  {currentStep > step.number ? <Check className="h-5 w-5" /> : step.number}
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-medium">{step.title}</div>
+                  <div className="text-xs">{step.description}</div>
+                </div>
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`w-12 h-0.5 mx-4 ${
+                  currentStep > step.number ? 'bg-primary-600' : 'bg-neutral-200'
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep1 = () => (
+    <div>
+      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+        Choose Your Occasion
+      </h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {occasions.map((occasion) => (
+          <div
+            key={occasion.id}
+            onClick={() => handleOccasionSelect(occasion)}
+            className={`group cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+              selection.occasion?.id === occasion.id ? 'ring-2 ring-primary-500' : ''
+            }`}
+          >
+            <div className={`relative h-48 bg-gradient-to-br ${getOccasionGradient(occasion.id)}`}>
+              {/* Decorative patterns */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 w-full h-full" style={{
+                  backgroundImage: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 2px, transparent 2px)`,
+                  backgroundSize: '25px 25px'
+                }}></div>
+              </div>
+              
+              {/* Icon */}
+              <div className="absolute top-4 left-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                  <Gift className="h-6 w-6 text-white" />
+                </div>
+              </div>
+
+              {/* Selected indicator */}
+              {selection.occasion?.id === occasion.id && (
+                <div className="absolute top-4 right-4">
+                  <div className="bg-primary-600 text-white rounded-full p-2">
+                    <Check className="h-4 w-4" />
+                  </div>
+                </div>
+              )}
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-4 left-4 text-white">
+                <h3 className="text-xl font-serif font-bold">{occasion.name}</h3>
+                <p className="text-sm opacity-90">{occasion.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div>
+      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+        Select Your Vibe
+      </h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {vibes.map((vibe) => (
+          <div
+            key={vibe.id}
+            onClick={() => handleVibeSelect(vibe)}
+            className={`group cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+              selection.vibe?.id === vibe.id ? 'ring-2 ring-primary-500' : ''
+            }`}
+          >
+            <div className={`relative h-48 bg-gradient-to-br ${getVibeGradient(vibe.id)}`}>
+              {/* Decorative patterns */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 w-full h-full" style={{
+                  backgroundImage: `radial-gradient(circle at 40% 40%, rgba(255,255,255,0.3) 3px, transparent 3px)`,
+                  backgroundSize: '35px 35px'
+                }}></div>
+              </div>
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute top-4 right-4">
+                <span className={`${vibe.color} text-white px-3 py-1 rounded-full text-sm font-medium`}>
+                  {vibe.name}
+                </span>
+              </div>
+
+              {/* Selected indicator */}
+              {selection.vibe?.id === vibe.id && (
+                <div className="absolute top-4 left-4">
+                  <div className="bg-primary-600 text-white rounded-full p-2">
+                    <Check className="h-4 w-4" />
+                  </div>
+                </div>
+              )}
+
+              <div className="absolute bottom-4 left-4 text-white">
+                <h3 className="text-xl font-serif font-bold">{vibe.name}</h3>
+                <p className="text-sm opacity-90">{vibe.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div>
+      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+        Choose Packaging
+      </h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {packaging.map((pkg) => (
+          <div
+            key={pkg.id}
+            onClick={() => handlePackagingSelect(pkg)}
+            className={`group cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+              selection.packaging?.id === pkg.id ? 'ring-2 ring-primary-500' : ''
+            }`}
+          >
+            <div className={`relative h-48 bg-gradient-to-br ${getPackagingGradient(pkg.id)}`}>
+              {/* Decorative patterns */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 w-full h-full" style={{
+                  backgroundImage: `radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4) 2px, transparent 2px)`,
+                  backgroundSize: '30px 30px'
+                }}></div>
+              </div>
+              
+              {/* Icon */}
+              <div className="absolute top-4 left-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                  <Package className="h-6 w-6 text-white" />
+                </div>
+              </div>
+
+              {/* Selected indicator */}
+              {selection.packaging?.id === pkg.id && (
+                <div className="absolute top-4 right-4">
+                  <div className="bg-primary-600 text-white rounded-full p-2">
+                    <Check className="h-4 w-4" />
+                  </div>
+                </div>
+              )}
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute top-4 right-4">
+                <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  ₹{pkg.price}
+                </span>
+              </div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <h3 className="text-xl font-serif font-bold">{pkg.name}</h3>
+                <p className="text-sm opacity-90">{pkg.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderStep4 = () => {
+    const categories = Array.from(new Set(contents.map(c => c.category)));
+    
+    return (
+      <div>
+        <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+          Choose Contents
+        </h2>
+        <p className="text-center text-neutral-600 mb-8">
+          Select multiple items to create your perfect hamper
+        </p>
+        
+        {categories.map((category) => (
+          <div key={category} className="mb-12">
+            <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">{category}</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {contents.filter(c => c.category === category).map((content) => {
+                const isSelected = selection.contents.find(c => c.id === content.id);
+                return (
+                  <div
+                    key={content.id}
+                    onClick={() => handleContentToggle(content)}
+                    className={`cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 ${
+                      isSelected ? 'border-primary-500' : 'border-transparent'
+                    }`}
+                  >
+                    <div className={`relative h-32 bg-gradient-to-br ${getContentGradient(content.category)}`}>
+                      {/* Decorative patterns */}
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-0 left-0 w-full h-full" style={{
+                          backgroundImage: `radial-gradient(circle at 60% 60%, rgba(255,255,255,0.4) 1px, transparent 1px)`,
+                          backgroundSize: '20px 20px'
+                        }}></div>
+                      </div>
+                      
+                      {/* Icon */}
+                      <div className="absolute top-2 left-2">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+                          <Sparkles className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                      
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 bg-primary-600 text-white rounded-full p-1">
+                          <Check className="h-4 w-4" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 left-2">
+                        <span className="bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
+                          ₹{content.price}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h4 className="font-semibold text-neutral-800 mb-1">{content.name}</h4>
+                      <p className="text-sm text-neutral-600">{content.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        
+        {selection.contents.length > 0 && (
+          <div className="text-center mt-8">
+            <button
+              onClick={() => setCurrentStep(5)}
+              className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200"
+            >
+              Continue to Review ({selection.contents.length} items selected)
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderStep5 = () => (
+    <div>
+      <h2 className="text-3xl font-serif font-bold text-center text-neutral-800 mb-8">
+        Review Your Hamper
+      </h2>
+      
+      <div className="grid lg:grid-cols-2 gap-12">
+        {/* Order Summary */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">Order Summary</h3>
+          
+          <div className="space-y-4 mb-6">
+            <div className="flex justify-between items-center py-2 border-b">
+              <span className="font-medium">Occasion:</span>
+              <span className="text-primary-600">{selection.occasion?.name}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b">
+              <span className="font-medium">Vibe:</span>
+              <span className="text-primary-600">{selection.vibe?.name}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b">
+              <span className="font-medium">Packaging:</span>
+              <span className="text-primary-600">{selection.packaging?.name} - ₹{selection.packaging?.price}</span>
+            </div>
+          </div>
+          
+          <h4 className="font-semibold text-neutral-800 mb-4">Contents ({selection.contents.length} items):</h4>
+          <div className="space-y-2 mb-6">
+            {selection.contents.map((content) => (
+              <div key={content.id} className="flex justify-between items-center py-1">
+                <span className="text-sm">{content.name}</span>
+                <span className="text-sm font-medium">₹{content.price}</span>
+              </div>
+            ))}
+          </div>
+          
+          <div className="border-t pt-4">
+            <div className="flex justify-between items-center text-xl font-bold">
+              <span>Total:</span>
+              <span className="text-primary-600">₹{calculateTotal()}</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Mockup Preview */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">Your Hamper Preview</h3>
+          
+          <div className="relative mb-6">
+            <div className={`w-full h-64 bg-gradient-to-br ${getPackagingGradient(selection.packaging?.id || '')} rounded-xl relative overflow-hidden`}>
+              {/* Decorative patterns */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 w-full h-full" style={{
+                  backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 3px, transparent 3px)`,
+                  backgroundSize: '40px 40px'
+                }}></div>
+              </div>
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-xl" />
+              <div className="absolute bottom-4 left-4 text-white">
+                <h4 className="text-lg font-bold">{selection.occasion?.name} Hamper</h4>
+                <p className="text-sm opacity-90">{selection.vibe?.name} Style</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {selection.contents.slice(0, 4).map((content) => (
+              <div key={content.id} className="relative">
+                <div className={`w-full h-20 bg-gradient-to-br ${getContentGradient(content.category)} rounded-lg relative overflow-hidden`}>
+                  <div className="absolute inset-0 bg-black/30 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs font-medium text-center px-1">
+                      {content.name}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {selection.contents.length > 4 && (
+            <p className="text-sm text-neutral-600 text-center mb-6">
+              +{selection.contents.length - 4} more items included
+            </p>
+          )}
+          
+          <div className="space-y-4">
+            <button
+              onClick={() => setShowMockup(true)}
+              className="w-full border border-primary-600 text-primary-600 hover:bg-primary-50 py-3 px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+            >
+              <Eye className="h-5 w-5" />
+              <span>View Full Mockup</span>
+            </button>
+            
+            <button
+              onClick={handleOrderSubmit}
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <span>Order via WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <section className="pt-24 pb-20 bg-neutral-50 min-h-screen hamper-builder" data-page="builder">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with Home Button */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={onNavigateHome}
+            className="flex items-center space-x-2 text-neutral-600 hover:text-primary-600 transition-colors duration-200"
+          >
+            <Home className="h-5 w-5" />
+            <span>Back to Home</span>
+          </button>
+          
+          <h1 className="text-3xl font-serif font-bold text-neutral-800">
+            Build Your Perfect Hamper
+          </h1>
+          
+          <div className="w-24"></div> {/* Spacer for centering */}
+        </div>
+
+        {renderStepIndicator()}
+        
+        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+          {currentStep === 4 && renderStep4()}
+          {currentStep === 5 && renderStep5()}
+          
+          {/* Navigation */}
+          <div className="flex justify-between items-center mt-12">
+            <button
+              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+              disabled={currentStep === 1}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                currentStep === 1
+                  ? 'text-neutral-400 cursor-not-allowed'
+                  : 'text-neutral-600 hover:text-primary-600 hover:bg-primary-50'
+              }`}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>Previous</span>
+            </button>
+            
+            <div className="text-center">
+              {currentStep === 4 && selection.contents.length === 0 && (
+                <p className="text-neutral-500 italic">Select at least one item to continue</p>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                if (currentStep === 4 && selection.contents.length > 0) {
+                  setCurrentStep(5);
+                } else if (currentStep < 4) {
+                  setCurrentStep(currentStep + 1);
+                }
+              }}
+              disabled={
+                (currentStep === 1 && !selection.occasion) ||
+                (currentStep === 2 && !selection.vibe) ||
+                (currentStep === 3 && !selection.packaging) ||
+                (currentStep === 4 && selection.contents.length === 0) ||
+                currentStep === 5
+              }
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                ((currentStep === 1 && !selection.occasion) ||
+                 (currentStep === 2 && !selection.vibe) ||
+                 (currentStep === 3 && !selection.packaging) ||
+                 (currentStep === 4 && selection.contents.length === 0) ||
+                 currentStep === 5)
+                  ? 'text-neutral-400 cursor-not-allowed'
+                  : 'text-primary-600 hover:bg-primary-50'
+              }`}
+            >
+              <span>Next</span>
+              <ArrowRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Mockup Modal */}
+        {showMockup && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-screen items-center justify-center p-4">
+              <div 
+                className="fixed inset-0 bg-black/50 transition-opacity"
+                onClick={() => setShowMockup(false)}
+              />
+              <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8">
+                <button
+                  onClick={() => setShowMockup(false)}
+                  className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 text-2xl"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                
+                <h3 className="text-2xl font-serif font-bold text-neutral-800 mb-6">
+                  Your Custom Hamper Mockup
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <div className={`w-full h-80 bg-gradient-to-br ${getPackagingGradient(selection.packaging?.id || '')} rounded-xl relative overflow-hidden`}>
+                      {/* Decorative patterns */}
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-0 left-0 w-full h-full" style={{
+                          backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 4px, transparent 4px)`,
+                          backgroundSize: '50px 50px'
+                        }}></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-xl font-bold text-neutral-800 mb-4">
+                      {selection.occasion?.name} Hamper - {selection.vibe?.name} Style
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      <p><strong>Packaging:</strong> {selection.packaging?.name}</p>
+                      <p><strong>Total Items:</strong> {selection.contents.length}</p>
+                      <p><strong>Total Value:</strong> ₹{calculateTotal()}</p>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <h5 className="font-semibold mb-3">Included Items:</h5>
+                      <div className="grid grid-cols-2 gap-2">
+                        {selection.contents.map((content) => (
+                          <div key={content.id} className="text-sm bg-neutral-50 p-2 rounded">
+                            {content.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={handleOrderSubmit}
+                      className="w-full mt-6 bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-xl font-semibold transition-colors duration-200"
+                    >
+                      Order This Hamper
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default HamperBuilder;
