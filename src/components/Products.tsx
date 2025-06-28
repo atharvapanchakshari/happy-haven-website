@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { products, Product } from '../data/products';
 import { Eye, MessageCircle, Star, Package, Gift, Heart, AlertCircle, X, CheckCircle } from 'lucide-react';
+// Import your product images (uncomment and adjust paths when you add your images)
+// import productImage1 from '../assets/product-1.jpg';
+// import productImage2 from '../assets/product-2.jpg';
+// import productImage3 from '../assets/product-3.jpg';
 
 const Products: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -86,6 +90,13 @@ Please confirm this order and provide delivery details.`;
               >
                 {/* Product Header with CSS Design */}
                 <div className={`relative h-48 sm:h-56 md:h-64 bg-gradient-to-br ${gradientClass} overflow-hidden`}>
+                  {/* Add product image (uncomment when you add your images) */}
+                  {/* <img 
+                    src={productImage1} // Replace with appropriate image based on product
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  /> */}
+                  
                   {/* Decorative patterns */}
                   <div className="absolute inset-0 opacity-20">
                     <div className="absolute top-0 left-0 w-full h-full" style={{

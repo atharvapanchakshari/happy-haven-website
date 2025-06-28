@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowDown, Sparkles, Gift } from 'lucide-react';
+import heroImage from '../assets/hero-hamper.jpg';
 
 interface HeroProps {
   onNavigate: (section: string) => void;
@@ -27,7 +28,12 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, onStartBuilder }) => {
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background with CSS patterns */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-accent-800 via-accent-700 to-primary-600"></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        ></div>
+        {/* Reduced opacity gradient overlay to show the image */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent-800/60 via-accent-700/40 to-primary-600/50"></div>
         {/* Decorative patterns */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-full h-full bg-repeat" style={{

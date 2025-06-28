@@ -1,5 +1,7 @@
 import React from 'react';
 import { Heart, Award, Truck, Shield } from 'lucide-react';
+// Import your about image (uncomment when you add your image)
+// import aboutImage from '../assets/about-image.jpg';
 
 const About: React.FC = () => {
   const features = [
@@ -45,6 +47,16 @@ const About: React.FC = () => {
             <h3 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-800 mb-6 sm:mb-8">
               Our Story
             </h3>
+            
+            {/* Add about image (uncomment when you add your image) */}
+            {/* <div className="mb-8">
+              <img 
+                src={aboutImage} 
+                alt="Happy Haven Team" 
+                className="w-full max-w-2xl mx-auto rounded-2xl shadow-lg"
+              />
+            </div> */}
+            
             <div className="space-y-4 sm:space-y-6 text-neutral-600 leading-relaxed text-base sm:text-lg">
               <p>
                 Happy Haven was born from a simple belief: that gifting should be an art form. 
