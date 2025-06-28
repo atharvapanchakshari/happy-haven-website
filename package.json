@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://yourusername.github.io/happy-haven-website",
+  "homepage": "https://atharvapanchakshari.github.io/happy-haven-website",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
