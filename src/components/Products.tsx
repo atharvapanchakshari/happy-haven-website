@@ -1,43 +1,54 @@
 import React, { useState } from 'react';
 import { products, Product } from '../data/products';
-import { Eye, MessageCircle, Star, Package, Gift, Heart, AlertCircle, X, CheckCircle } from 'lucide-react';
+import { Eye, MessageCircle, Star, Package, Gift, Heart, AlertCircle, X, CheckCircle, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { useCart } from '../contexts/CartContext';
 // Import your product images (uncomment and adjust paths when you add your images)
 // import productImage1 from '../assets/product-1.jpg';
 // import productImage2 from '../assets/product-2.jpg';
 // import productImage3 from '../assets/product-3.jpg';
 
-const Products: React.FC = () => {
+interface ProductsProps {
+  onNavigateCart?: () => void;
+}
+
+const Products: React.FC<ProductsProps> = ({ onNavigateCart }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showConfirmation, setShowConfirmation] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
   const handleOrderNow = (product: Product) => {
     setShowConfirmation(product);
+    setQuantity(1);
   };
 
-  const confirmOrder = (product: Product) => {
-    const orderSummary = `
-🎁 *ORDER SUMMARY*
-
-📦 *Product:* ${product.name}
-💰 *Price:* ${product.price}
-🏷️ *Category:* ${product.category}
-
-📋 *Complete Contents:*
-${product.contents.map((item, index) => `${index + 1}. ${item}`).join('\n')}
-
-📦 *Packaging:* ${product.packaging}
-🚚 *Delivery:* ${product.deliveryInfo}
-
-🎯 *Perfect for:* ${product.occasions.join(', ')}
-
-✨ *Special Features:*
-${product.features.map(feature => `• ${feature}`).join('\n')}
-
-Please confirm this order and provide delivery details.`;
-
-    const whatsappUrl = `https://wa.me/918007191513?text=${encodeURIComponent(orderSummary)}`;
-    window.open(whatsappUrl, '_blank');
+  const addToCartHandler = (product: Product) => {
+    // Convert price string to number (remove ₹ and commas)
+    const priceNumber = parseInt(product.price.replace(/[₹,]/g, ''));
+    
+    addToCart({
+      type: 'prebuilt',
+      name: product.name,
+      price: priceNumber * quantity,
+      quantity: quantity,
+      product: {
+        category: product.category,
+        description: product.description,
+        occasions: product.occasions,
+        features: product.features,
+        contents: product.contents,
+        packaging: product.packaging,
+        deliveryInfo: product.deliveryInfo
+      }
+    });
+    
     setShowConfirmation(null);
+    setQuantity(1);
+    
+    // Navigate to cart page if navigation function is provided
+    if (onNavigateCart) {
+      onNavigateCart();
+    }
   };
 
   const getCategoryIcon = (category: string) => {
@@ -77,7 +88,7 @@ Please confirm this order and provide delivery details.`;
         </div>
 
         {/* Products Grid - Responsive */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product, index) => {
             const CategoryIcon = getCategoryIcon(product.category);
             const gradientClass = getCategoryGradient(product.category);
@@ -85,11 +96,11 @@ Please confirm this order and provide delivery details.`;
             return (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group"
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden group"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {/* Product Header with CSS Design */}
-                <div className={`relative h-48 sm:h-56 md:h-64 bg-gradient-to-br ${gradientClass} overflow-hidden`}>
+                <div className={`relative h-32 sm:h-36 bg-gradient-to-br ${gradientClass} overflow-hidden`}>
                   {/* Add product image (uncomment when you add your images) */}
                   {/* <img 
                     src={productImage1} // Replace with appropriate image based on product
@@ -106,80 +117,80 @@ Please confirm this order and provide delivery details.`;
                   </div>
                   
                   {/* Category Icon */}
-                  <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 sm:p-3">
-                      <CategoryIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                  <div className="absolute top-2 sm:top-3 left-2 sm:left-3">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5 sm:p-2">
+                      <CategoryIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                     </div>
                   </div>
 
                   {/* Category Badge */}
-                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                    <span className="bg-white/90 text-neutral-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center space-x-1">
-                      <Star className="h-2 w-2 sm:h-3 sm:w-3" />
+                  <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+                    <span className="bg-white/90 text-neutral-800 px-2 py-0.5 rounded-full text-xs font-medium flex items-center space-x-1">
+                      <Star className="h-2 w-2" />
                       <span>{product.category}</span>
                     </span>
                   </div>
 
                   {/* Hover Actions */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
-                    <div className="flex space-x-3">
+                    <div className="flex space-x-2">
                       <button
                         onClick={() => setSelectedProduct(product)}
-                        className="bg-white/90 hover:bg-white text-neutral-800 p-2 sm:p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
+                        className="bg-white/90 hover:bg-white text-neutral-800 p-1.5 sm:p-2 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
                       >
-                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                       <button
                         onClick={() => handleOrderNow(product)}
-                        className="bg-primary-600 hover:bg-primary-700 text-white p-2 sm:p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
+                        className="bg-primary-600 hover:bg-primary-700 text-white p-1.5 sm:p-2 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
                       >
-                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                     </div>
                   </div>
 
                   {/* Product Title Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-serif font-bold text-white mb-1">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 sm:p-4">
+                    <h3 className="text-base sm:text-lg font-serif font-bold text-white mb-0.5">
                       {product.name}
                     </h3>
-                    <p className="text-xl sm:text-2xl font-bold text-primary-300">
+                    <p className="text-lg sm:text-xl font-bold text-primary-300">
                       {product.price}
                     </p>
                   </div>
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4 sm:p-6">
-                  <p className="text-neutral-600 text-sm leading-relaxed mb-4 line-clamp-3">
+                <div className="p-3 sm:p-4">
+                  <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed mb-3 line-clamp-2">
                     {product.description}
                   </p>
 
                   {/* Occasions */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-neutral-700 mb-2">Perfect for:</h4>
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {product.occasions.slice(0, 3).map((occasion) => (
+                  <div className="mb-3">
+                    <h4 className="text-xs font-semibold text-neutral-700 mb-1">Perfect for:</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {product.occasions.slice(0, 2).map((occasion) => (
                         <span
                           key={occasion}
-                          className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium"
+                          className="bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full text-xs font-medium"
                         >
                           {occasion}
                         </span>
                       ))}
-                      {product.occasions.length > 3 && (
-                        <span className="text-neutral-500 text-xs">+{product.occasions.length - 3} more</span>
+                      {product.occasions.length > 2 && (
+                        <span className="text-neutral-500 text-xs">+{product.occasions.length - 2} more</span>
                       )}
                     </div>
                   </div>
 
                   {/* Key Features */}
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold text-neutral-700 mb-2">Key Features:</h4>
-                    <ul className="text-xs text-neutral-600 space-y-1">
-                      {product.features.slice(0, 3).map((feature, index) => (
+                  <div className="mb-4">
+                    <h4 className="text-xs font-semibold text-neutral-700 mb-1">Key Features:</h4>
+                    <ul className="text-xs text-neutral-600 space-y-0.5">
+                      {product.features.slice(0, 2).map((feature, index) => (
                         <li key={index} className="flex items-center">
-                          <span className="w-1.5 h-1.5 bg-primary-400 rounded-full mr-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-primary-400 rounded-full mr-1.5 flex-shrink-0"></span>
                           <span className="line-clamp-1">{feature}</span>
                         </li>
                       ))}
@@ -187,18 +198,19 @@ Please confirm this order and provide delivery details.`;
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                  <div className="flex flex-col space-y-2">
                     <button
                       onClick={() => setSelectedProduct(product)}
-                      className="flex-1 border border-neutral-300 text-neutral-700 hover:border-primary-400 hover:text-primary-600 py-2 px-4 rounded-lg font-medium transition-colors duration-200 text-sm"
+                      className="border border-neutral-300 text-neutral-700 hover:border-primary-400 hover:text-primary-600 py-1.5 px-3 rounded-lg font-medium transition-colors duration-200 text-xs"
                     >
                       View Details
                     </button>
                     <button
                       onClick={() => handleOrderNow(product)}
-                      className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 text-sm"
+                      className="bg-primary-600 hover:bg-primary-700 text-white py-1.5 px-3 rounded-lg font-medium transition-colors duration-200 text-xs flex items-center justify-center space-x-1"
                     >
-                      Order Now
+                      <ShoppingCart className="h-3 w-3" />
+                      <span>Add to Cart</span>
                     </button>
                   </div>
                 </div>
@@ -227,15 +239,15 @@ Please confirm this order and provide delivery details.`;
                   {/* Header */}
                   <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <AlertCircle className="h-8 w-8 text-amber-600" />
+                      <ShoppingCart className="h-8 w-8 text-amber-600" />
                     </div>
                     
                     <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-2">
-                      Confirm Your Order
+                      Add to Cart
                     </h3>
                     
                     <p className="text-neutral-600 text-sm sm:text-base">
-                      Please review your hamper details before ordering
+                      Choose quantity and add this hamper to your cart
                     </p>
                   </div>
 
@@ -261,75 +273,34 @@ Please confirm this order and provide delivery details.`;
                       {showConfirmation.description}
                     </p>
 
-                    {/* Occasions */}
-                    <div className="mb-4">
-                      <h5 className="text-sm font-semibold text-neutral-700 mb-2">Perfect for:</h5>
-                      <div className="flex flex-wrap gap-2">
-                        {showConfirmation.occasions.map((occasion) => (
-                          <span
-                            key={occasion}
-                            className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium"
-                          >
-                            {occasion}
-                          </span>
-                        ))}
+                    {/* Quantity Selector */}
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-neutral-700">Quantity:</label>
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-8 h-8 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="text-lg font-medium w-8 text-center">{quantity}</span>
+                        <button
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-8 h-8 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Complete Contents */}
-                  <div className="mb-6">
-                    <h4 className="text-base sm:text-lg font-semibold text-neutral-800 mb-4 flex items-center">
-                      <Package className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary-600" />
-                      What's Included in Your Hamper
-                    </h4>
-                    
-                    <div className="bg-white border border-neutral-200 rounded-xl p-4 max-h-48 sm:max-h-64 overflow-y-auto">
-                      <div className="space-y-3">
-                        {showConfirmation.contents.map((item, index) => (
-                          <div key={index} className="flex items-start space-x-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors duration-200">
-                            <div className="bg-primary-600 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-medium mt-0.5 flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <span className="text-neutral-700 text-xs sm:text-sm flex-1">{item}</span>
-                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          </div>
-                        ))}
+                    {/* Total Price */}
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-neutral-700">Total:</span>
+                        <span className="text-lg font-bold text-primary-600">
+                          ₹{parseInt(showConfirmation.price.replace(/[₹,]/g, '')) * quantity}
+                        </span>
                       </div>
-                    </div>
-                    
-                    <div className="mt-4 text-center">
-                      <p className="text-sm text-neutral-600">
-                        <strong>{showConfirmation.contents.length} premium items</strong> carefully selected for this hamper
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Packaging & Delivery Info */}
-                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                    <h5 className="font-semibold text-neutral-800 mb-3 text-sm sm:text-base">Packaging & Delivery</h5>
-                    <div className="space-y-2 text-sm text-neutral-600">
-                      <div className="flex items-center space-x-2">
-                        <Package className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                        <span className="text-xs sm:text-sm">{showConfirmation.packaging}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <MessageCircle className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                        <span className="text-xs sm:text-sm">{showConfirmation.deliveryInfo}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Special Features */}
-                  <div className="mb-8">
-                    <h5 className="font-semibold text-neutral-800 mb-3 text-sm sm:text-base">Special Features</h5>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {showConfirmation.features.map((feature, index) => (
-                        <div key={index} className="flex items-center space-x-2 text-sm text-neutral-600">
-                          <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
-                          <span className="text-xs sm:text-sm">{feature}</span>
-                        </div>
-                      ))}
                     </div>
                   </div>
 
@@ -342,11 +313,11 @@ Please confirm this order and provide delivery details.`;
                       Cancel
                     </button>
                     <button
-                      onClick={() => confirmOrder(showConfirmation)}
+                      onClick={() => addToCartHandler(showConfirmation)}
                       className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
                     >
-                      <MessageCircle className="h-4 w-4" />
-                      <span>Yes, Order Now</span>
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>Add to Cart</span>
                     </button>
                   </div>
                 </div>
@@ -463,8 +434,8 @@ Please confirm this order and provide delivery details.`;
                         }}
                         className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                       >
-                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span>Order via WhatsApp</span>
+                        <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span>Add to Cart</span>
                       </button>
                     </div>
                   </div>

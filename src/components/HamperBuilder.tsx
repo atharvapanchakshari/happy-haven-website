@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Check, ShoppingCart, Eye, X, Gift, Package, Sparkles, Home } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ShoppingCart, Eye, X, Gift, Package, Sparkles, Home, Plus, Minus, User, Trash2 } from 'lucide-react';
 import { occasions, vibes, packaging, contents, Occasion, Vibe, Packaging, Content } from '../data/hamperBuilder';
+import { useCart } from '../contexts/CartContext';
+
+// Import all occasion images
+import birthdayImage from '../assets/birthday-occasion.jpg';
+import anniversaryImage from '../assets/anniversary-occasion.jpg';
+import corporateImage from '../assets/corporate-occasion.jpg';
+import festivalsImage from '../assets/festivals-occasion.jpg';
+import weddingImage from '../assets/wedding-occasion.JPG';
+import babyShowerImage from '../assets/baby-shower-occasion.jpg';
+import housewarmingImage from '../assets/House-warming-occasion.JPG';
+
+// Image mapping for occasions
+const occasionImageMap = {
+  birthday: birthdayImage,
+  anniversary: anniversaryImage,
+  corporate: corporateImage,
+  festivals: festivalsImage,
+  wedding: weddingImage,
+  'baby-shower': babyShowerImage,
+  housewarming: housewarmingImage,
+};
 
 interface HamperSelection {
   occasion: Occasion | null;
@@ -9,12 +30,27 @@ interface HamperSelection {
   contents: Content[];
 }
 
+interface CartItem {
+  id: string;
+  hamper: HamperSelection;
+  quantity: number;
+  price: number;
+}
+
+interface CustomerDetails {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+}
+
 interface HamperBuilderProps {
   preSelectedOccasion?: string | null;
   onNavigateHome: () => void;
+  onNavigateCart: () => void;
 }
 
-const HamperBuilder: React.FC<HamperBuilderProps> = ({ preSelectedOccasion, onNavigateHome }) => {
+const HamperBuilder: React.FC<HamperBuilderProps> = ({ preSelectedOccasion, onNavigateHome, onNavigateCart }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selection, setSelection] = useState<HamperSelection>({
     occasion: null,
@@ -23,6 +59,9 @@ const HamperBuilder: React.FC<HamperBuilderProps> = ({ preSelectedOccasion, onNa
     contents: []
   });
   const [showMockup, setShowMockup] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const { cart, addToCart, updateQuantity, removeFromCart, calculateTotal, getCartItemCount, customerDetails, updateCustomerDetails } = useCart();
 
   // Handle pre-selected occasion
   useEffect(() => {
@@ -56,7 +95,7 @@ const HamperBuilder: React.FC<HamperBuilderProps> = ({ preSelectedOccasion, onNa
     { number: 2, title: 'Select Vibe', description: 'What\'s your style?' },
     { number: 3, title: 'Pick Packaging', description: 'How should we wrap it?' },
     { number: 4, title: 'Choose Contents', description: 'What goes inside?' },
-    { number: 5, title: 'Review & Order', description: 'Finalize your hamper' }
+    { number: 5, title: 'Review & Add to Cart', description: 'Add to your order' }
   ];
 
   const handleOccasionSelect = (occasion: Occasion) => {
@@ -83,30 +122,72 @@ const HamperBuilder: React.FC<HamperBuilderProps> = ({ preSelectedOccasion, onNa
     }));
   };
 
-  const calculateTotal = () => {
+  const calculateHamperPrice = () => {
     const packagingPrice = selection.packaging?.price || 0;
     const contentsPrice = selection.contents.reduce((sum, content) => sum + content.price, 0);
     return packagingPrice + contentsPrice;
+  };
+
+  const addToCartHandler = () => {
+    if (selection.occasion && selection.vibe && selection.packaging && selection.contents.length > 0) {
+      addToCart({
+        type: 'custom',
+        name: `${selection.occasion.name} Hamper`,
+        price: calculateHamperPrice(),
+        quantity: quantity,
+        hamper: {
+          occasion: selection.occasion.name,
+          vibe: selection.vibe.name,
+          packaging: selection.packaging.name,
+          contents: selection.contents.map(c => c.name)
+        }
+      });
+      
+      // Reset selection and quantity for next hamper
+      setSelection({
+        occasion: null,
+        vibe: null,
+        packaging: null,
+        contents: []
+      });
+      setQuantity(1);
+      setCurrentStep(1);
+      
+      // Navigate to cart page
+      onNavigateCart();
+    }
   };
 
   const handleOrderSubmit = () => {
     const orderDetails = `
 🎁 *CUSTOM HAMPER ORDER*
 
-📅 *Occasion:* ${selection.occasion?.name}
-🎨 *Vibe:* ${selection.vibe?.name}
-📦 *Packaging:* ${selection.packaging?.name} (₹${selection.packaging?.price})
+👤 *Customer Details:*
+• Name: ${customerDetails.name}
+• Phone: ${customerDetails.phone}
+• Email: ${customerDetails.email}
+• Address: ${customerDetails.address}
 
-📋 *Contents Selected:*
-${selection.contents.map((content, index) => `${index + 1}. ${content.name} - ₹${content.price}`).join('\n')}
+📦 *Order Summary:*
+${cart.map((item, index) => `
+*Item ${index + 1}:*
+• Name: ${item.name}
+• Type: ${item.type === 'custom' ? 'Custom Hamper' : 'Prebuilt Hamper'}
+• Quantity: ${item.quantity}
+• Price: ₹${item.price}
+${item.type === 'custom' && item.hamper ? `
+• Occasion: ${item.hamper.occasion}
+• Vibe: ${item.hamper.vibe}
+• Packaging: ${item.hamper.packaging}
+• Contents: ${item.hamper.contents.join(', ')}
+` : ''}
+${item.type === 'prebuilt' && item.product ? `
+• Category: ${item.product.category}
+• Contents: ${item.product.contents.join(', ')}
+` : ''}
+`).join('\n')}
 
 💰 *Total Amount:* ₹${calculateTotal()}
-
-📝 *Order Summary:*
-• Total Items: ${selection.contents.length}
-• Packaging: ${selection.packaging?.description}
-• Style: ${selection.vibe?.description}
-• Occasion: ${selection.occasion?.description}
 
 Please confirm availability and provide delivery details.`;
 
@@ -217,48 +298,51 @@ Please confirm availability and provide delivery details.`;
       <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Choose Your Occasion
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {occasions.map((occasion) => (
-          <div
-            key={occasion.id}
-            onClick={() => handleOccasionSelect(occasion)}
-            className={`group cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
-              selection.occasion?.id === occasion.id ? 'ring-2 ring-primary-500' : ''
-            }`}
-          >
-            <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${getOccasionGradient(occasion.id)}`}>
-              {/* Decorative patterns */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-0 left-0 w-full h-full" style={{
-                  backgroundImage: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 2px, transparent 2px)`,
-                  backgroundSize: '25px 25px'
-                }}></div>
-              </div>
-              
-              {/* Icon */}
-              <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 sm:p-3">
-                  <Gift className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
-                </div>
-              </div>
-
-              {/* Selected indicator */}
-              {selection.occasion?.id === occasion.id && (
-                <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                  <div className="bg-primary-600 text-white rounded-full p-1 sm:p-2">
-                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+        {occasions.map((occasion) => {
+          const occasionImage = occasionImageMap[occasion.id as keyof typeof occasionImageMap];
+          
+          return (
+            <div
+              key={occasion.id}
+              onClick={() => handleOccasionSelect(occasion)}
+              className={`group cursor-pointer bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${
+                selection.occasion?.id === occasion.id ? 'ring-2 ring-primary-500' : ''
+              }`}
+            >
+              <div className="relative h-28 sm:h-32 overflow-hidden rounded-xl">
+                <img 
+                  src={occasionImage} 
+                  alt={occasion.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                
+                {/* Icon */}
+                <div className="absolute top-2 left-2">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5">
+                    <Gift className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
                 </div>
-              )}
-              
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
-                <h3 className="text-lg sm:text-xl font-serif font-bold">{occasion.name}</h3>
-                <p className="text-xs sm:text-sm opacity-90">{occasion.description}</p>
+
+                {/* Selected indicator */}
+                {selection.occasion?.id === occasion.id && (
+                  <div className="absolute top-2 right-2">
+                    <div className="bg-primary-600 text-white rounded-full p-1">
+                      <Check className="h-2 w-2 sm:h-3 sm:w-3" />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Subtle overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute bottom-2 left-2 right-2 text-white">
+                  <h3 className="text-sm sm:text-base font-serif font-bold">{occasion.name}</h3>
+                  <p className="text-xs opacity-90 line-clamp-1">{occasion.description}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -268,16 +352,16 @@ Please confirm availability and provide delivery details.`;
       <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Select Your Vibe
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {vibes.map((vibe) => (
           <div
             key={vibe.id}
             onClick={() => handleVibeSelect(vibe)}
-            className={`group cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+            className={`group cursor-pointer bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${
               selection.vibe?.id === vibe.id ? 'ring-2 ring-primary-500' : ''
             }`}
           >
-            <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${getVibeGradient(vibe.id)}`}>
+            <div className={`relative h-28 sm:h-32 bg-gradient-to-br ${getVibeGradient(vibe.id)}`}>
               {/* Decorative patterns */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -287,24 +371,24 @@ Please confirm availability and provide delivery details.`;
               </div>
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                <span className={`${vibe.color} text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium`}>
+              <div className="absolute top-2 right-2">
+                <span className={`${vibe.color} text-white px-2 py-0.5 rounded-full text-xs font-medium`}>
                   {vibe.name}
                 </span>
               </div>
 
               {/* Selected indicator */}
               {selection.vibe?.id === vibe.id && (
-                <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
-                  <div className="bg-primary-600 text-white rounded-full p-1 sm:p-2">
-                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                <div className="absolute top-2 left-2">
+                  <div className="bg-primary-600 text-white rounded-full p-1">
+                    <Check className="h-2 w-2 sm:h-3 sm:w-3" />
                   </div>
                 </div>
               )}
 
-              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
-                <h3 className="text-lg sm:text-xl font-serif font-bold">{vibe.name}</h3>
-                <p className="text-xs sm:text-sm opacity-90">{vibe.description}</p>
+              <div className="absolute bottom-2 left-2 right-2 text-white">
+                <h3 className="text-sm sm:text-base font-serif font-bold">{vibe.name}</h3>
+                <p className="text-xs opacity-90 line-clamp-1">{vibe.description}</p>
               </div>
             </div>
           </div>
@@ -318,16 +402,16 @@ Please confirm availability and provide delivery details.`;
       <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center text-neutral-800 mb-6 sm:mb-8">
         Choose Packaging
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {packaging.map((pkg) => (
           <div
             key={pkg.id}
             onClick={() => handlePackagingSelect(pkg)}
-            className={`group cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+            className={`group cursor-pointer bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${
               selection.packaging?.id === pkg.id ? 'ring-2 ring-primary-500' : ''
             }`}
           >
-            <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${getPackagingGradient(pkg.id)}`}>
+            <div className={`relative h-28 sm:h-32 bg-gradient-to-br ${getPackagingGradient(pkg.id)}`}>
               {/* Decorative patterns */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -337,30 +421,30 @@ Please confirm availability and provide delivery details.`;
               </div>
               
               {/* Icon */}
-              <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 sm:p-3">
-                  <Package className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+              <div className="absolute top-2 left-2">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5">
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
               </div>
 
               {/* Selected indicator */}
               {selection.packaging?.id === pkg.id && (
-                <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                  <div className="bg-primary-600 text-white rounded-full p-1 sm:p-2">
-                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                <div className="absolute top-2 right-2">
+                  <div className="bg-primary-600 text-white rounded-full p-1">
+                    <Check className="h-2 w-2 sm:h-3 sm:w-3" />
                   </div>
                 </div>
               )}
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                <span className="bg-primary-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+              <div className="absolute top-2 right-2">
+                <span className="bg-primary-600 text-white px-2 py-0.5 rounded-full text-xs font-medium">
                   ₹{pkg.price}
                 </span>
               </div>
-              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
-                <h3 className="text-lg sm:text-xl font-serif font-bold">{pkg.name}</h3>
-                <p className="text-xs sm:text-sm opacity-90">{pkg.description}</p>
+              <div className="absolute bottom-2 left-2 right-2 text-white">
+                <h3 className="text-sm sm:text-base font-serif font-bold">{pkg.name}</h3>
+                <p className="text-xs opacity-90 line-clamp-1">{pkg.description}</p>
               </div>
             </div>
           </div>
@@ -382,20 +466,20 @@ Please confirm availability and provide delivery details.`;
         </p>
         
         {categories.map((category) => (
-          <div key={category} className="mb-8 sm:mb-12">
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">{category}</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div key={category} className="mb-6 sm:mb-8">
+            <h3 className="text-lg sm:text-xl font-serif font-bold text-neutral-800 mb-3 sm:mb-4">{category}</h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {contents.filter(c => c.category === category).map((content) => {
                 const isSelected = selection.contents.find(c => c.id === content.id);
                 return (
                   <div
                     key={content.id}
                     onClick={() => handleContentToggle(content)}
-                    className={`cursor-pointer bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 ${
+                    className={`cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-2 ${
                       isSelected ? 'border-primary-500' : 'border-transparent'
                     }`}
                   >
-                    <div className={`relative h-24 sm:h-32 bg-gradient-to-br ${getContentGradient(content.category)}`}>
+                    <div className={`relative h-20 sm:h-24 bg-gradient-to-br ${getContentGradient(content.category)}`}>
                       {/* Decorative patterns */}
                       <div className="absolute inset-0 opacity-20">
                         <div className="absolute top-0 left-0 w-full h-full" style={{
@@ -405,26 +489,26 @@ Please confirm availability and provide delivery details.`;
                       </div>
                       
                       {/* Icon */}
-                      <div className="absolute top-1 sm:top-2 left-1 sm:left-2">
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-1 sm:p-2">
-                          <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                      <div className="absolute top-1 left-1">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-1">
+                          <Sparkles className="h-2 w-2 sm:h-3 sm:w-3 text-white" />
                         </div>
                       </div>
                       
                       {isSelected && (
-                        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-primary-600 text-white rounded-full p-1">
-                          <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <div className="absolute top-1 right-1 bg-primary-600 text-white rounded-full p-0.5">
+                          <Check className="h-2 w-2 sm:h-3 sm:w-3" />
                         </div>
                       )}
-                      <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2">
-                        <span className="bg-black/70 text-white px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium">
+                      <div className="absolute bottom-1 left-1">
+                        <span className="bg-black/70 text-white px-1 py-0.5 rounded text-xs font-medium">
                           ₹{content.price}
                         </span>
                       </div>
                     </div>
-                    <div className="p-3 sm:p-4">
-                      <h4 className="font-semibold text-neutral-800 mb-1 text-sm sm:text-base">{content.name}</h4>
-                      <p className="text-xs sm:text-sm text-neutral-600 line-clamp-2">{content.description}</p>
+                    <div className="p-2 sm:p-3">
+                      <h4 className="font-semibold text-neutral-800 mb-1 text-xs sm:text-sm line-clamp-1">{content.name}</h4>
+                      <p className="text-xs text-neutral-600 line-clamp-2">{content.description}</p>
                     </div>
                   </div>
                 );
@@ -454,9 +538,9 @@ Please confirm availability and provide delivery details.`;
       </h2>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
-        {/* Order Summary */}
+        {/* Current Hamper Review */}
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-          <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">Order Summary</h3>
+          <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">Your Hamper Details</h3>
           
           <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
             <div className="flex justify-between items-center py-2 border-b text-sm sm:text-base">
@@ -483,15 +567,43 @@ Please confirm availability and provide delivery details.`;
             ))}
           </div>
           
+          {/* Quantity Selection */}
+          <div className="mb-4 sm:mb-6">
+            <label className="block text-sm font-medium text-neutral-800 mb-2">Quantity:</label>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-8 h-8 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center"
+              >
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="text-lg font-medium w-12 text-center">{quantity}</span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-8 h-8 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+          
           <div className="border-t pt-4">
             <div className="flex justify-between items-center text-lg sm:text-xl font-bold">
               <span>Total:</span>
-              <span className="text-primary-600">₹{calculateTotal()}</span>
+              <span className="text-primary-600">₹{calculateHamperPrice() * quantity}</span>
             </div>
           </div>
+          
+          <button
+            onClick={addToCartHandler}
+            className="w-full mt-4 sm:mt-6 bg-primary-600 hover:bg-primary-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
+          >
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>Add to Cart</span>
+          </button>
         </div>
         
-        {/* Mockup Preview */}
+        {/* Hamper Preview */}
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
           <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-800 mb-4 sm:mb-6">Your Hamper Preview</h3>
           
@@ -533,23 +645,13 @@ Please confirm availability and provide delivery details.`;
             </p>
           )}
           
-          <div className="space-y-3 sm:space-y-4">
-            <button
-              onClick={() => setShowMockup(true)}
-              className="w-full border border-primary-600 text-primary-600 hover:bg-primary-50 py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
-            >
-              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>View Full Mockup</span>
-            </button>
-            
-            <button
-              onClick={handleOrderSubmit}
-              className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
-            >
-              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Order via WhatsApp</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setShowMockup(true)}
+            className="w-full border border-primary-600 text-primary-600 hover:bg-primary-50 py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
+          >
+            <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>View Full Mockup</span>
+          </button>
         </div>
       </div>
     </div>
@@ -558,7 +660,7 @@ Please confirm availability and provide delivery details.`;
   return (
     <section className="pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 md:pb-20 bg-neutral-50 min-h-screen hamper-builder" data-page="builder">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with Home Button */}
+        {/* Header with Home Button and Cart */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <button
             onClick={onNavigateHome}
@@ -572,7 +674,21 @@ Please confirm availability and provide delivery details.`;
             Build Your Perfect Hamper
           </h1>
           
-          <div className="w-20 sm:w-24"></div> {/* Spacer for centering */}
+          {/* Cart Indicator */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onNavigateCart()}
+              className="relative flex items-center space-x-2 text-neutral-600 hover:text-primary-600 transition-colors duration-200 text-sm sm:text-base"
+            >
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>View Cart</span>
+              {getCartItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getCartItemCount()}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         {renderStepIndicator()}
@@ -677,7 +793,7 @@ Please confirm availability and provide delivery details.`;
                     <div className="space-y-2 sm:space-y-3 text-sm sm:text-base">
                       <p><strong>Packaging:</strong> {selection.packaging?.name}</p>
                       <p><strong>Total Items:</strong> {selection.contents.length}</p>
-                      <p><strong>Total Value:</strong> ₹{calculateTotal()}</p>
+                      <p><strong>Total Value:</strong> ₹{calculateHamperPrice()}</p>
                     </div>
                     
                     <div className="mt-4 sm:mt-6">
@@ -692,10 +808,10 @@ Please confirm availability and provide delivery details.`;
                     </div>
                     
                     <button
-                      onClick={handleOrderSubmit}
+                      onClick={addToCartHandler}
                       className="w-full mt-4 sm:mt-6 bg-primary-600 hover:bg-primary-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-colors duration-200 text-sm sm:text-base"
                     >
-                      Order This Hamper
+                      Add to Cart
                     </button>
                   </div>
                 </div>

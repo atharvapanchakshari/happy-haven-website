@@ -1,17 +1,34 @@
 import React from 'react';
 import { Gift, Phone, Mail, MessageCircle, Heart } from 'lucide-react';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (section: string) => void;
+  currentView?: 'home' | 'builder' | 'cart';
+}
+
+const Footer: React.FC<FooterProps> = ({ onNavigate, currentView }) => {
   const currentYear = new Date().getFullYear();
 
-  const handleLinkClick = (href: string) => {
-    if (href.startsWith('#')) {
-      const element = document.querySelector(href);
+  const handleLinkClick = (sectionId: string) => {
+    if (onNavigate) {
+      // Use the navigation function if available (for builder view)
+      onNavigate(sectionId);
+    } else {
+      // Fallback to scroll behavior for home view
+      const element = document.getElementById(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };
+
+  const quickLinks = [
+    { name: 'Home', id: 'hero' },
+    { name: 'Products', id: 'products' },
+    { name: 'Occasions', id: 'occasions' },
+    { name: 'About', id: 'about' },
+    { name: 'Contact', id: 'contact' },
+  ];
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -62,13 +79,13 @@ const Footer: React.FC = () => {
             <div>
               <h3 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Quick Links</h3>
               <ul className="space-y-2 sm:space-y-3">
-                {['Home', 'Products', 'Occasions', 'About', 'Contact'].map((link) => (
-                  <li key={link}>
+                {quickLinks.map((link) => (
+                  <li key={link.id}>
                     <button
-                      onClick={() => handleLinkClick(`#${link.toLowerCase()}`)}
+                      onClick={() => handleLinkClick(link.id)}
                       className="text-gray-300 hover:text-amber-400 transition-colors duration-200 text-left text-sm sm:text-base"
                     >
-                      {link}
+                      {link.name}
                     </button>
                   </li>
                 ))}

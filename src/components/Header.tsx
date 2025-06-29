@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Gift, Phone, MessageCircle } from 'lucide-react';
+import { Menu, X, Gift, Phone, MessageCircle, ShoppingCart } from 'lucide-react';
+import { useCart } from '../contexts/CartContext';
 
 interface HeaderProps {
   onNavigate: (section: string) => void;
-  currentView?: 'home' | 'builder';
+  currentView?: 'home' | 'builder' | 'cart';
 }
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { getCartItemCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,8 +21,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   }, []);
 
   // Determine if we should use dark text (for light backgrounds)
-  // Use dark text if we're scrolled OR if we're on the builder page
-  const shouldUseDarkText = isScrolled || currentView === 'builder';
+  // Use dark text if we're scrolled OR if we're on the builder or cart page
+  const shouldUseDarkText = isScrolled || currentView === 'builder' || currentView === 'cart';
 
   const navigationItems = [
     { name: 'Home', id: 'hero' },
@@ -62,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
             ))}
           </nav>
 
-          {/* Contact Info - Hidden on smaller screens */}
+          {/* Contact Info and Cart - Hidden on smaller screens */}
           <div className="hidden xl:flex items-center space-x-3 2xl:space-x-4">
             <a
               href="tel:+918007191513"
@@ -89,6 +91,24 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
               <MessageCircle className="h-3 w-3 2xl:h-4 2xl:w-4" />
               <span>WhatsApp</span>
             </a>
+            
+            {/* Cart Button */}
+            <button
+              onClick={() => onNavigate('cart')}
+              className={`relative flex items-center space-x-1 text-xs 2xl:text-sm transition-colors duration-300 ${
+                shouldUseDarkText 
+                  ? 'text-neutral-600 hover:text-primary-600' 
+                  : 'text-white hover:text-primary-200'
+              }`}
+            >
+              <ShoppingCart className="h-3 w-3 2xl:h-4 2xl:w-4" />
+              <span>Cart</span>
+              {getCartItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {getCartItemCount()}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -139,6 +159,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
                   <MessageCircle className="h-4 w-4" />
                   <span>WhatsApp Chat</span>
                 </a>
+                <button
+                  onClick={() => {
+                    onNavigate('cart');
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center space-x-3 px-3 py-2 text-neutral-600 hover:text-primary-600 hover:bg-neutral-50 rounded-md transition-colors duration-200 w-full text-left"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  <span>Cart ({getCartItemCount()})</span>
+                </button>
               </div>
             </div>
           </div>

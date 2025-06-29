@@ -78,19 +78,19 @@ const About: React.FC = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center group"
+              className="bg-white rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center group"
             >
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:from-primary-200 group-hover:to-primary-300 transition-all duration-300">
-                <feature.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:from-primary-200 group-hover:to-primary-300 transition-all duration-300">
+                <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
               </div>
-              <h4 className="text-lg sm:text-xl font-semibold text-neutral-800 mb-2 sm:mb-3">
+              <h4 className="text-sm sm:text-base font-semibold text-neutral-800 mb-1 sm:mb-2">
                 {feature.title}
               </h4>
-              <p className="text-neutral-600 leading-relaxed text-sm sm:text-base">
+              <p className="text-neutral-600 leading-relaxed text-xs sm:text-sm">
                 {feature.description}
               </p>
             </div>
