@@ -8,9 +8,9 @@ import birthdayImage from '../assets/birthday-occasion.jpg';
 import anniversaryImage from '../assets/anniversary-occasion.jpg';
 import corporateImage from '../assets/corporate-occasion.jpg';
 import festivalsImage from '../assets/festivals-occasion.jpg';
-import weddingImage from '../assets/wedding-occasion.JPG';
+import weddingImage from '../assets/wedding-occasion.jpg';
 import babyShowerImage from '../assets/baby-shower-occasion.jpg';
-import housewarmingImage from '../assets/House-warming-occasion.JPG';
+import housewarmingImage from '../assets/House-warming-occasion.jpg';
 
 // Image mapping for occasions
 const occasionImageMap = {
